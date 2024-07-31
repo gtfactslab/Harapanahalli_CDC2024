@@ -1,0 +1,3 @@
+[submodule "npinterval"]
+	path = npinterval
+	url = https://github.com/gtfactslab/npinterval.git

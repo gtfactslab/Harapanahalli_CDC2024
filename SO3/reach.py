@@ -77,7 +77,8 @@ def reach_rkmk4 (y:TangentInterval, t, h, recenter=False) :
     if recenter :
         Thcent = (Thl + Thu)/2
         xc = y.xc@expm(Thcent)
-        Thout = BCH(interval.get_iarray(Thl, Thu), -Thcent)
+        # Thout = BCH(interval.get_iarray(Thl, Thu), -Thcent)
+        Thout = BCH(-Thcent, interval.get_iarray(Thl, Thu))
         return TangentInterval(xc, *interval.get_lu(Thout))
     else :
         return TangentInterval(y.xc, Thl, Thu)

@@ -1,9 +1,10 @@
 import numpy as np
 from numpy import sin, cos, arcsin, arccos, sqrt
 import interval
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 """
-Rather than use the closed form dexpinv and BCH, we truncate to 4th order (using RK4 anyways). 
+Rather than use the closed form dexpinv and BCH, we truncate to 4th order.
 This is because of the trig expressions in the denominator. 
 When using intervals, these denominators can include zero, and blow up the result.
 """
@@ -59,7 +60,8 @@ def BCH (u, v) :
     # )
     th = sqrt(np.dot(u, u))
     ph = sqrt(np.dot(v, v))
-    if th.dtype == np.interval :
+    # if th.dtype == np.interval :
+    if ph.dtype == np.interval :
         buv = brak(u, v)
         buuv = brak(u, buv)
         return (
@@ -136,6 +138,27 @@ def plot_tangent_int_R (ax, R, Thl, Thu, N=5, **kwargs) :
     # surfx = ax.plot_trisurf(*(np.array(xpoints).T), **kwargs)
     # surfy = ax.plot_trisurf(*(np.array(ypoints).T), **kwargs)
     # surfz = ax.plot_trisurf(*(np.array(zpoints).T), **kwargs)
+
+
+def draw_iarray_3d (ax, x, xi=0, yi=1, zi=2, **kwargs) :
+    xl, xu = interval.get_lu(x)
+    Xl, Yl, Zl = xl[(xi,yi,zi),]
+    Xu, Yu, Zu = xu[(xi,yi,zi),]
+    poly_alpha = kwargs.pop('poly_alpha', 0.)
+    kwargs.setdefault('color', 'tab:blue')
+    kwargs.setdefault('lw', 0.75)
+    faces = [ \
+        np.array([[Xl,Yl,Zl],[Xu,Yl,Zl],[Xu,Yu,Zl],[Xl,Yu,Zl],[Xl,Yl,Zl]]), \
+        np.array([[Xl,Yl,Zu],[Xu,Yl,Zu],[Xu,Yu,Zu],[Xl,Yu,Zu],[Xl,Yl,Zu]]), \
+        np.array([[Xl,Yl,Zl],[Xu,Yl,Zl],[Xu,Yl,Zu],[Xl,Yl,Zu],[Xl,Yl,Zl]]), \
+        np.array([[Xl,Yu,Zl],[Xu,Yu,Zl],[Xu,Yu,Zu],[Xl,Yu,Zu],[Xl,Yu,Zl]]), \
+        np.array([[Xl,Yl,Zl],[Xl,Yu,Zl],[Xl,Yu,Zu],[Xl,Yl,Zu],[Xl,Yl,Zl]]), \
+        np.array([[Xu,Yl,Zl],[Xu,Yu,Zl],[Xu,Yu,Zu],[Xu,Yl,Zu],[Xu,Yl,Zl]]) ]
+    for face in faces :
+        ax.plot3D(face[:,0], face[:,1], face[:,2], **kwargs)
+        kwargs['alpha'] = poly_alpha
+        ax.add_collection3d(Poly3DCollection([face], **kwargs))
+
 
 from dataclasses import dataclass
 @dataclass
